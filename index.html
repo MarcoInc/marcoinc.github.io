@@ -170,36 +170,36 @@
         document.getElementById('current-year').textContent = new Date().getFullYear();
     </script>
 
-    <!-- ========= INIZIA SCRIPT KONAMI CODE ========= -->
+    <!-- ========= INIZIA SCRIPT KONAMI CODE (CORRETTO) ========= -->
     <script>
-        // La sequenza di tasti del Konami Code
+        // 1. La sequenza di tasti del Konami Code (ora tutta in minuscolo)
         const konamiCode = [
-            'ArrowUp', 'ArrowUp',
-            'ArrowDown', 'ArrowDown',
-            'ArrowLeft', 'ArrowRight',
-            'ArrowLeft', 'ArrowRight',
+            'arrowup', 'arrowup',
+            'arrowdown', 'arrowdown',
+            'arrowleft', 'arrowright',
+            'arrowleft', 'arrowright',
             'b', 'a'
         ];
 
         let konamiCodePosition = 0;
 
-        // Aggiungiamo un listener per l'evento 'keydown' all'intera pagina
         document.addEventListener('keydown', function(e) {
-            // Ottiene il nome del tasto premuto (es. 'ArrowUp', 'b')
+            // Converte il tasto premuto in minuscolo (es. 'ArrowUp' -> 'arrowup')
             const key = e.key.toLowerCase();
 
-            // Se il tasto premuto è quello giusto nella sequenza...
+            // Confronta il tasto minuscolo con l'array minuscolo
             if (key === konamiCode[konamiCodePosition]) {
-                // ...avanza alla posizione successiva
                 konamiCodePosition++;
 
-                // Se abbiamo completato l'intera sequenza...
                 if (konamiCodePosition === konamiCode.length) {
-                    // ...mostra il popup modale
+                    // 2. Aggiunge il messaggio in console
+                    console.log('Konami code attivato!');
+
+                    // Mostra il popup modale
                     const myModal = new bootstrap.Modal(document.getElementById('easterEggModal'));
                     myModal.show();
                     
-                    // ...e resetta la posizione per poterlo riattivare
+                    // Resetta la posizione per poterlo riattivare
                     konamiCodePosition = 0;
                 }
             } else {
