@@ -138,6 +138,25 @@
         </div>
     </div>
 
+    <!-- ========= INIZIA CODICE MODAL EASTER EGG ========= -->
+    <div class="modal fade" id="easterEggModal" tabindex="-1" aria-labelledby="easterEggModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="easterEggModalLabel">🤫 Segreto Sbloccato!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Hai attivato una funzione inutile, congratulazioni!
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Chiudi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ========= FINE CODICE MODAL EASTER EGG ========= -->
+
     <!-- Footer -->
     <footer class="text-center py-4">
         <p>&copy; <span id="current-year"></span> MarcoInc Tutti i diritti riservati.</p>
@@ -146,11 +165,50 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-    <!-- ========= INIZIA CODICE AGGIUNTO ========= -->
+    <!-- Script per l'anno dinamico -->
     <script>
         document.getElementById('current-year').textContent = new Date().getFullYear();
     </script>
-    <!-- ========= FINE CODICE AGGIUNTO ========= -->
+
+    <!-- ========= INIZIA SCRIPT KONAMI CODE ========= -->
+    <script>
+        // La sequenza di tasti del Konami Code
+        const konamiCode = [
+            'ArrowUp', 'ArrowUp',
+            'ArrowDown', 'ArrowDown',
+            'ArrowLeft', 'ArrowRight',
+            'ArrowLeft', 'ArrowRight',
+            'b', 'a'
+        ];
+
+        let konamiCodePosition = 0;
+
+        // Aggiungiamo un listener per l'evento 'keydown' all'intera pagina
+        document.addEventListener('keydown', function(e) {
+            // Ottiene il nome del tasto premuto (es. 'ArrowUp', 'b')
+            const key = e.key.toLowerCase();
+
+            // Se il tasto premuto è quello giusto nella sequenza...
+            if (key === konamiCode[konamiCodePosition]) {
+                // ...avanza alla posizione successiva
+                konamiCodePosition++;
+
+                // Se abbiamo completato l'intera sequenza...
+                if (konamiCodePosition === konamiCode.length) {
+                    // ...mostra il popup modale
+                    const myModal = new bootstrap.Modal(document.getElementById('easterEggModal'));
+                    myModal.show();
+                    
+                    // ...e resetta la posizione per poterlo riattivare
+                    konamiCodePosition = 0;
+                }
+            } else {
+                // Se il tasto è sbagliato, resetta la sequenza
+                konamiCodePosition = 0;
+            }
+        });
+    </script>
+    <!-- ========= FINE SCRIPT KONAMI CODE ========= -->
 
 </body>
 </html>
