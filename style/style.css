@@ -1,0 +1,180 @@
+ :root{
+            --primary: #007bff;
+            --bg-light: #f8f9fa;
+            --card-light: #ffffff;
+            --text-light: #212529;
+            --hero-light: #ffffff;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-light);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Dark theme */
+        body.dark-mode {
+            background-color: #0b0b0b;
+            color: #e6e6e6;
+        }
+
+        body.dark-mode .card {
+            background-color: #161616;
+            color: #e6e6e6;
+        }
+
+        /* Navbar adjustments for dark-mode */
+        .navbar {
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.dark-mode .navbar {
+            background-color: #0d1115 !important;
+        }
+        body.dark-mode .navbar .navbar-brand,
+        body.dark-mode .navbar .nav-link {
+            color: rgba(255,255,255,0.92) !important;
+        }
+
+        .hero-section {
+            padding: 120px 0;
+            background-color: var(--hero-light);
+            animation: fadeIn 1s ease-out;
+            transition: background-color 0.3s;
+        }
+        body.dark-mode .hero-section {
+            background-color: #121212;
+        }
+
+        @keyframes fadeIn {
+            0% {opacity: 0; transform: translateY(30px);}
+            100% {opacity: 1; transform: translateY(0);}
+        }
+
+        .hero-section h1 {
+            font-size: 3rem;
+            font-weight: 600;
+            color: #343a40;
+        }
+        body.dark-mode .hero-section h1 {
+            color: #f1f1f1;
+        }
+
+        .hero-section p {
+            font-size: 1.2rem;
+            color: #6c757d;
+        }
+        body.dark-mode .hero-section p {
+            color: #bfbfbf;
+        }
+
+        .project-card {
+            transition: transform 0.2s, box-shadow 0.3s ease-in-out;
+            border-radius: 10px;
+        }
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 30px rgba(2,6,23,0.12);
+        }
+
+        .social-icons a {
+            font-size: 2rem;
+            margin: 0 12px;
+            color: #343a40;
+            transition: color 0.3s ease;
+        }
+        body.dark-mode .social-icons a {
+            color: #f1f1f1;
+        }
+        .social-icons a:hover {
+            color: var(--primary);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        footer {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 20px 0;
+            animation: footerAnim 1s ease-in-out;
+        }
+        body.dark-mode footer {
+            background-color: #0b0b0b;
+            color: #ddd;
+        }
+        footer:hover {
+            background-color: #495057;
+            cursor: pointer;
+        }
+
+        @keyframes footerAnim {
+            0% {opacity: 0;}
+            100% {opacity: 1;}
+        }
+
+        /* Confetti styles */
+        .confetti {
+            position: fixed;
+            top: -20px;
+            width: 10px;
+            height: 14px;
+            pointer-events: none;
+            opacity: 0.95;
+            border-radius: 2px;
+            transform-origin: center;
+            z-index: 2147483640; /* on top */
+            animation: confetti-fall 2.8s linear forwards;
+        }
+        @keyframes confetti-fall {
+            0% {transform: translateY(-10vh) rotate(0deg); opacity: 1;}
+            100% {transform: translateY(110vh) rotate(540deg); opacity: 0.9;}
+        }
+
+        /* Toggle Theme Button */
+        .theme-toggle {
+            position: fixed;
+            top: 14px;
+            right: 18px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 2147483650; /* above everything */
+            transition: background 0.2s, transform 0.12s;
+            box-shadow: 0 6px 18px rgba(2,6,23,0.12);
+        }
+        .theme-toggle:hover { transform: translateY(-2px); background: #0062d6; }
+
+        /* small spacing for icon + title in card */
+        .card-title i.devicon-plain,
+        .card-title i.devicon-original {
+            font-size: 1.4rem;
+        }
+        .card-title .icon-wrap {
+            width: 28px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* ensure devicon colored icons look good on dark */
+        body.dark-mode i.colored { filter: drop-shadow(0 1px 0 rgba(0,0,0,0.5)); }
+
+        /* small responsive tweak so nothing overlap on mobile */
+        @media (max-width: 576px) {
+            .theme-toggle { top: 10px; right: 10px; width:44px; height:44px; }
+        }
