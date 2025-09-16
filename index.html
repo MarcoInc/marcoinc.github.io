@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>MarcoInc | Portfolio</title>
 
     <!-- Bootstrap CSS -->
@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    
+
     <!-- Icone Bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
@@ -21,24 +21,125 @@
             font-family: 'Poppins', sans-serif;
             background-color: #f8f9fa;
         }
+
         .hero-section {
-            padding: 100px 0;
+            padding: 120px 0;
             background-color: #ffffff;
+            animation: fadeIn 1s ease-out;
         }
-        .project-card {
-            transition: transform 0.2s;
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .project-card:hover {
-            transform: translateY(-5px);
-        }
-        .social-icons a {
-            font-size: 1.5rem;
-            margin: 0 10px;
+
+        .hero-section h1 {
+            font-size: 3rem;
+            font-weight: 600;
             color: #343a40;
-            transition: color 0.2s;
         }
+
+        .hero-section p {
+            font-size: 1.2rem;
+            color: #6c757d;
+        }
+
+        .project-card {
+            transition: transform 0.2s, box-shadow 0.3s ease-in-out;
+            border-radius: 10px;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 4px 20px rgba(0, 123, 255, 0.3);
+        }
+
+        .social-icons a {
+            font-size: 2rem;
+            margin: 0 15px;
+            color: #343a40;
+            transition: color 0.3s ease;
+        }
+
         .social-icons a:hover {
             color: #007bff;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: #343a40;
+        }
+
+        .card-text {
+            font-size: 1rem;
+            color: #6c757d;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        footer {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 20px 0;
+            animation: footerAnim 1s ease-in-out;
+        }
+
+        footer:hover {
+            background-color: #495057;
+            cursor: pointer;
+        }
+
+        @keyframes footerAnim {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Confetti styles */
+        .confetti {
+            position: fixed;
+            top: -20px;
+            width: 10px;
+            height: 14px;
+            pointer-events: none;
+            opacity: 0.95;
+            border-radius: 2px;
+            transform-origin: center;
+            z-index: 2147483647; /* very high to be on top */
+            animation: confetti-fall 2.8s linear forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(540deg);
+                opacity: 0.9;
+            }
         }
     </style>
 </head>
@@ -50,8 +151,8 @@
         <h1 class="display-4">Marco</h1>
         <p class="lead">Appassionato di Tecnologia e Coding</p>
         <div class="social-icons mt-4">
-            <a href="https://github.com/MarcoInc" target="_blank" title="GitHub"><i class="bi bi-github"></i></a>
-            <a href="https://www.linkedin.com/in/marcosotera-webdev/" target="_blank" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+            <a href="https://github.com/MarcoInc" target="_blank" rel="noopener" title="GitHub"><i class="bi bi-github"></i></a>
+            <a href="https://www.linkedin.com/in/marcosotera-webdev/" target="_blank" rel="noopener" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
         </div>
     </div>
 
@@ -64,8 +165,8 @@
                 <div class="card h-100 shadow-sm project-card">
                     <div class="card-body">
                         <h5 class="card-title">PrestoProject FullStack Laravel</h5>
-                        <p class="card-text">Un progetto Laravel creato in Team con la code factory Aulab, in cui sono stati ripresi tutti i principali principi del CRUD e altre features</p>
-                        <a href="https://github.com/MarcoInc/PrestoProject_FullStack_Laravel" class="btn btn-primary">Vedi su GitHub</a>
+                        <p class="card-text">Un progetto Laravel creato in Team con la code factory Aulab, in cui sono stati ripresi tutti i principali principi del CRUD e altre features.</p>
+                        <a href="https://github.com/MarcoInc/PrestoProject_FullStack_Laravel" class="btn btn-primary" target="_blank" rel="noopener">Vedi su GitHub</a>
                     </div>
                 </div>
             </div>
@@ -74,24 +175,25 @@
                 <div class="card h-100 shadow-sm project-card">
                     <div class="card-body">
                         <h5 class="card-title">Cybershock!</h5>
-                        <p class="card-text">Sparatutto a scorrimento orizzontale 2D scritto con Unity realizzato per un progetto universitario</p>
-                        <a href="https://github.com/MarcoInc/CyberShock-Project" class="btn btn-primary">Vedi su GitHub</a>
+                        <p class="card-text">Sparatutto a scorrimento orizzontale 2D scritto con Unity realizzato per un progetto universitario.</p>
+                        <a href="https://github.com/MarcoInc/CyberShock-Project" class="btn btn-primary" target="_blank" rel="noopener">Vedi su GitHub</a>
                     </div>
                 </div>
-            </div>    
+            </div>
         </div>
     </div>
 
+    <!-- Progetti Tutorial -->
     <div class="container py-5">
-        <h2 class="text-center mb-5">Progetti tutorial</h2>
+        <h2 class="text-center mb-5">Progetti Tutorial</h2>
         <div class="row">
             <!-- Progetto 1 -->
             <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm project-card">
                     <div class="card-body">
                         <h5 class="card-title">C++ Exercises</h5>
-                        <p class="card-text">Una serie di esercizi C++ che riprendono i principali principi del linguaggio C++</p>
-                        <a href="https://github.com/MarcoInc/C_plus_plus_Exercises" class="btn btn-primary">Vedi su GitHub</a>
+                        <p class="card-text">Una serie di esercizi C++ che riprendono i principali principi del linguaggio C++.</p>
+                        <a href="https://github.com/MarcoInc/C_plus_plus_Exercises" class="btn btn-primary" target="_blank" rel="noopener">Vedi su GitHub</a>
                     </div>
                 </div>
             </div>
@@ -100,54 +202,34 @@
                 <div class="card h-100 shadow-sm project-card">
                     <div class="card-body">
                         <h5 class="card-title">Java Exercises</h5>
-                        <p class="card-text">Una serie di esercizi Java che riprendono i principali principi del linguaggio Java</p>
-                        <a href="https://github.com/MarcoInc/Java_Exercises" class="btn btn-primary">Vedi su GitHub</a>
+                        <p class="card-text">Una serie di esercizi Java che riprendono i principali principi del linguaggio Java.</p>
+                        <a href="https://github.com/MarcoInc/Java_Exercises" class="btn btn-primary" target="_blank" rel="noopener">Vedi su GitHub</a>
                     </div>
                 </div>
-            </div>   
+            </div>
             <!-- Progetto 3 -->
             <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm project-card">
                     <div class="card-body">
                         <h5 class="card-title">Python Exercises</h5>
-                        <p class="card-text">Una serie di esercizi Python che riprendono i principali principi del linguaggio Python</p>
-                        <a href="https://github.com/MarcoInc/Python_Exercises" class="btn btn-primary">Vedi su GitHub</a>
+                        <p class="card-text">Una serie di esercizi Python che riprendono i principali principi del linguaggio Python.</p>
+                        <a href="https://github.com/MarcoInc/Python_Exercises" class="btn btn-primary" target="_blank" rel="noopener">Vedi su GitHub</a>
                     </div>
                 </div>
-            </div>    
-            <!-- Progetto 4 -->
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm project-card">
-                    <div class="card-body">
-                        <h5 class="card-title">Python Lesson Advance</h5>
-                        <p class="card-text">Una serie di esercizi Python che riprendono i principali avanzati del linguaggio Python con l'uso di moduli e librerie avanzate</p>
-                        <a href="https://github.com/MarcoInc/PythonLessonAdv" class="btn btn-primary">Vedi su GitHub</a>
-                    </div>
-                </div>
-            </div>  
-             <!-- Progetto 5 -->
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm project-card">
-                    <div class="card-body">
-                        <h5 class="card-title">Progetto Store Giochi</h5>
-                        <p class="card-text">Un semplice progetto fullstack che illustra un sito web che implementa PHP puro e MySQL con funzioni base di CRUD, registrazione utenti e gestione articoli</p>
-                        <a href="https://github.com/MarcoInc/ProgettoWebGiochi_PHP_MYSQL" class="btn btn-primary">Vedi su GitHub</a>
-                    </div>
-                </div>
-            </div>    
+            </div>
         </div>
     </div>
 
-    <!-- ========= INIZIA CODICE MODAL EASTER EGG ========= -->
+    <!-- ========= INIZIO MODAL EASTER EGG ========= -->
     <div class="modal fade" id="easterEggModal" tabindex="-1" aria-labelledby="easterEggModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="easterEggModalLabel">🤫 Segreto Sbloccato!</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
                 </div>
                 <div class="modal-body">
-                    Hai attivato una funzione inutile, congratulazioni!
+                    Hai attivato il Konami Code — ben fatto! 🎉<br>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Chiudi</button>
@@ -155,7 +237,7 @@
             </div>
         </div>
     </div>
-    <!-- ========= FINE CODICE MODAL EASTER EGG ========= -->
+    <!-- ========= FINE MODAL EASTER EGG ========= -->
 
     <!-- Footer -->
     <footer class="text-center py-4">
@@ -170,43 +252,68 @@
         document.getElementById('current-year').textContent = new Date().getFullYear();
     </script>
 
-    <!-- ========= INIZIA SCRIPT KONAMI CODE (CORRETTO) ========= -->
+    <!-- ========= INIZIO SCRIPT KONAMI CODE + EFFETTO CONFETTI ========= -->
     <script>
-        // 1. La sequenza di tasti del Konami Code (ora tutta in minuscolo)
-        const konamiCode = [
-            'arrowup', 'arrowup',
-            'arrowdown', 'arrowdown',
-            'arrowleft', 'arrowright',
-            'arrowleft', 'arrowright',
-            'b', 'a'
-        ];
+        (function () {
+            // La sequenza del Konami Code (tutti minuscoli per confronto)
+            const konamiCode = [
+                'arrowup', 'arrowup',
+                'arrowdown', 'arrowdown',
+                'arrowleft', 'arrowright',
+                'arrowleft', 'arrowright',
+                'b', 'a'
+            ];
+            let konamiPos = 0;
 
-        let konamiCodePosition = 0;
-
-        document.addEventListener('keydown', function(e) {
-            // Converte il tasto premuto in minuscolo (es. 'ArrowUp' -> 'arrowup')
-            const key = e.key.toLowerCase();
-
-            // Confronta il tasto minuscolo con l'array minuscolo
-            if (key === konamiCode[konamiCodePosition]) {
-                konamiCodePosition++;
-
-                if (konamiCodePosition === konamiCode.length) {
-                    // 2. Aggiunge il messaggio in console
-                    console.log('Konami code attivato!');
-
-                    // Mostra il popup modale
-                    const myModal = new bootstrap.Modal(document.getElementById('easterEggModal'));
-                    myModal.show();
-                    
-                    // Resetta la posizione per poterlo riattivare
-                    konamiCodePosition = 0;
+            // Funzione semplice per creare confetti temporanei
+            function spawnConfetti(count = 28) {
+                const colors = ['#FFC107','#FF4081','#4CAF50','#03A9F4','#FF5722','#9C27B0','#8BC34A'];
+                for (let i = 0; i < count; i++) {
+                    const el = document.createElement('div');
+                    el.className = 'confetti';
+                    // Random left position across the viewport
+                    el.style.left = (Math.random() * 100) + '%';
+                    // random size
+                    const w = 6 + Math.floor(Math.random() * 8);
+                    el.style.width = w + 'px';
+                    el.style.height = Math.max(8, Math.floor(w * 1.2)) + 'px';
+                    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    el.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+                    el.style.animationDelay = (Math.random() * 0.4) + 's';
+                    document.body.appendChild(el);
+                    // Rimuovi dopo che l'animazione è conclusa
+                    setTimeout(() => {
+                        el.remove();
+                    }, 3200);
                 }
-            } else {
-                // Se il tasto è sbagliato, resetta la sequenza
-                konamiCodePosition = 0;
             }
-        });
+
+            document.addEventListener('keydown', function (e) {
+                // Converti il tasto in minuscolo (ArrowUp -> arrowup)
+                const key = (e.key || '').toLowerCase();
+
+                if (key === konamiCode[konamiPos]) {
+                    konamiPos++;
+                    if (konamiPos === konamiCode.length) {
+                        // Attivazione
+                        console.log('Konami code attivato!');
+                        // Confetti
+                        spawnConfetti(36);
+                        // Mostra il modal
+                        const modalEl = document.getElementById('easterEggModal');
+                        if (modalEl) {
+                            const myModal = new bootstrap.Modal(modalEl);
+                            myModal.show();
+                        }
+                        // Reset per permettere nuove attivazioni
+                        konamiPos = 0;
+                    }
+                } else {
+                    // Se l'utente ha iniziato di nuovo dalla prima freccia, imposta a 1, altrimenti resetta.
+                    konamiPos = (key === konamiCode[0]) ? 1 : 0;
+                }
+            });
+        })();
     </script>
     <!-- ========= FINE SCRIPT KONAMI CODE ========= -->
 
