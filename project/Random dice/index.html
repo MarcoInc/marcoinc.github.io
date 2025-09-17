@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dado Personalizzato — A chi tocca?</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f8f9fa; --card:#fff; --text:#212529; --muted:#6c757d; --accent:#0d6efd;
+    }
+    .dark{ --bg:#0b1020; --card:#0f1724; --text:#e6eef8; --muted:#9aa7bf; --accent:#66a1ff; }
+    body{ font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial; background:var(--bg); color:var(--text); }
+    .app-card{ background:var(--card); box-shadow:0 8px 30px rgba(2,6,23,0.08); border-radius:12px; }
+    .die{ width:220px; height:220px; display:flex; align-items:center; justify-content:center; border-radius:18px; font-weight:700; font-size:22px; text-align:center; padding:18px; }
+    .die .face-text{ font-size:28px; font-weight:800; }
+    .rolling{ animation:roll 900ms ease-in-out; }
+    @keyframes roll{ 0%{ transform:rotate(0) scale(1);} 50%{ transform:rotate(180deg) scale(1.08);} 100%{ transform:rotate(360deg) scale(1);} }
+    .no-faces{ opacity:0.7; }
+    .confetti-canvas{ position:fixed; left:0; top:0; width:100%; height:100%; pointer-events:none; z-index:1050; }
+  </style>
+</head>
+<body>
+  <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+  <div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3 mb-0">Dado personalizzato</h1>
+      <div class="d-flex align-items-center gap-3">
+        <div class="form-check form-switch ms-2">
+          <input class="form-check-input" type="checkbox" id="themeSwitch"> <label for="themeSwitch">Tema scuro</label>
+        </div>
+        <button class="btn btn-primary" id="addFaceBtn">+ Aggiungi faccia</button>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label">Domanda personalizzata</label>
+      <input type="text" id="questionInput" class="form-control" placeholder="A chi tocca?">
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="p-4 app-card text-center">
+          <div id="die" class="die app-card mb-3">
+            <div class="face-text" id="dieText">Nessuna faccia</div>
+          </div>
+          <button id="rollBtn" class="btn btn-success btn-lg">🎲 Estrai</button>
+          <div class="mt-3 small-note">Totale estrazioni: <span id="totalDraws">0</span> — Ultima estrazione: <span id="lastDraw">—</span></div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="p-3 app-card">
+          <h5>Facce</h5>
+          <div id="facesGrid" class="row g-3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add/Edit Face -->
+  <div class="modal fade" id="faceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content app-card">
+        <div class="modal-header">
+          <h5 class="modal-title" id="faceModalLabel">Aggiungi faccia</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+        </div>
+        <div class="modal-body">
+          <form id="faceForm">
+            <input type="hidden" id="faceId">
+            <div class="mb-3">
+              <label class="form-label">Nome</label>
+              <input type="text" id="faceName" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Emoji (opzionale)</label>
+              <input type="text" id="faceEmoji" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Colore sfondo</label>
+              <input type="color" id="faceColor" class="form-control form-control-color" value="#ffd54f">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+          <button type="button" class="btn btn-primary" id="saveFaceBtn">Salva</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    const LS_FACES = 'dado_faces_v1';
+    const LS_STATS = 'dado_stats_v1';
+    const LS_SETTINGS = 'dado_settings_v1';
+    const LS_QUESTION = 'dado_question_v1';
+
+    const facesGrid = document.getElementById('facesGrid');
+    const dieText = document.getElementById('dieText');
+    const rollBtn = document.getElementById('rollBtn');
+    const addFaceBtn = document.getElementById('addFaceBtn');
+    const saveFaceBtn = document.getElementById('saveFaceBtn');
+    const faceModal = new bootstrap.Modal(document.getElementById('faceModal'));
+    const questionInput = document.getElementById('questionInput');
+
+    let faces = [];
+    let stats = { total:0, counts:{} };
+    let settings = { dark:false };
+
+    function load(){
+      const f = localStorage.getItem(LS_FACES);
+      const s = localStorage.getItem(LS_STATS);
+      const sett = localStorage.getItem(LS_SETTINGS);
+      const q = localStorage.getItem(LS_QUESTION);
+      if(f) faces = JSON.parse(f);
+      if(s) stats = JSON.parse(s);
+      if(sett) settings = JSON.parse(sett);
+      if(q) questionInput.value = q;
+      renderFaces();
+    }
+
+    function saveFaces(){ localStorage.setItem(LS_FACES, JSON.stringify(faces)); }
+    function saveStats(){ localStorage.setItem(LS_STATS, JSON.stringify(stats)); }
+    function saveSettings(){ localStorage.setItem(LS_SETTINGS, JSON.stringify(settings)); }
+    function saveQuestion(){ localStorage.setItem(LS_QUESTION, questionInput.value); }
+
+    function renderFaces(){
+      facesGrid.innerHTML = '';
+      if(faces.length===0){
+        facesGrid.innerHTML = '<div class="col-12 text-center p-4 no-faces">Nessuna faccia - aggiungine una.</div>';
+        dieText.innerText = 'Nessuna faccia';
+        return;
+      }
+      faces.forEach((f, idx)=>{
+        const col = document.createElement('div');
+        col.className = 'col-6';
+        col.innerHTML = `<div class="p-2 app-card" style="background:${f.color}">${f.emoji||''} ${f.name}</div>`;
+        facesGrid.appendChild(col);
+      });
+    }
+
+    function animateDieWithText(text){
+      const die = document.getElementById('die');
+      die.classList.remove('rolling');
+      void die.offsetWidth;
+      die.classList.add('rolling');
+      dieText.innerText = text;
+      setTimeout(()=> die.classList.remove('rolling'), 900);
+    }
+
+    rollBtn.addEventListener('click', ()=>{
+      if(faces.length===0) return alert('Aggiungi prima almeno una faccia.');
+      const idx = Math.floor(Math.random()*faces.length);
+      const face = faces[idx];
+      animateDieWithText((questionInput.value||'A chi tocca?') + " → " + (face.emoji||'')+face.name);
+      stats.total = (stats.total||0)+1;
+      stats.counts[face.name] = (stats.counts[face.name]||0)+1;
+      saveStats();
+      confetti({ particleCount: 60, spread: 70, origin: { y: 0.4 } });
+    });
+
+    addFaceBtn.addEventListener('click', ()=>{
+      document.getElementById('faceId').value = '';
+      document.getElementById('faceForm').reset();
+      faceModal.show();
+    });
+
+    saveFaceBtn.addEventListener('click', ()=>{
+      const id = document.getElementById('faceId').value;
+      const name = document.getElementById('faceName').value.trim();
+      const emoji = document.getElementById('faceEmoji').value.trim();
+      const color = document.getElementById('faceColor').value;
+      if(!name){ alert('Inserisci un nome'); return; }
+      if(faces.find(f=>f.name.toLowerCase()===name.toLowerCase() && id==='')){ alert('Questa faccia esiste già'); return; }
+      const obj = { name, emoji, color };
+      if(id===''){
+        faces.push(obj);
+      } else {
+        faces[Number(id)] = obj;
+      }
+      saveFaces(); renderFaces();
+      faceModal.hide();
+    });
+
+    questionInput.addEventListener('input', saveQuestion);
+
+    load();
+  </script>
+</body>
+</html>
