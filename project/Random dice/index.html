@@ -8,11 +8,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#f8f9fa; --card:#fff; --text:#212529; --muted:#6c757d;
+      --bg:#f8f9fa; --card:#fff; --text:#212529; --muted:#6c757d; --btn-bg:#0d6efd; --btn-text:#fff;
     }
-    .dark{ --bg:#0b1020; --card:#0f1724; --text:#e6eef8; --muted:#9aa7bf; }
+    .dark{ --bg:#0b1020; --card:#0f1724; --text:#e6eef8; --muted:#9aa7bf; --btn-bg:#375a7f; --btn-text:#fff; }
+    .green{ --bg:#e9f6ec; --card:#d7f0db; --text:#062b10; --muted:#3c5d43; --btn-bg:#62bd5b; --btn-text:#fff; }
+    .blue{ --bg:#e8f0fa; --card:#d4e4f5; --text:#0b1e34; --muted:#3a5575; --btn-bg:#2196f3; --btn-text:#fff; }
+    .red{ --bg:#fbe9e9; --card:#f3d1d1; --text:#2a0b0b; --muted:#703d3d; --btn-bg:#f44336; --btn-text:#fff; }
+
     body{ font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial; background:var(--bg); color:var(--text); transition:background .3s,color .3s; }
     .app-card{ background:var(--card); box-shadow:0 4px 16px rgba(0,0,0,0.1); border-radius:12px; color:var(--text); }
+    .btn-custom{ background:var(--btn-bg); color:var(--btn-text); border:none; }
     .die{ width:220px; height:220px; display:flex; align-items:center; justify-content:center; border-radius:18px; font-weight:700; font-size:22px; text-align:center; padding:18px; }
     .die .face-text{ font-size:26px; font-weight:800; }
     .rolling{ animation:roll 900ms ease-in-out; }
@@ -28,9 +33,14 @@
   <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1 class="h3 mb-0">Dado personalizzato</h1>
-      <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" id="themeSwitch">
-        <label class="form-check-label" for="themeSwitch">Tema scuro</label>
+      <div class="d-flex gap-2">
+        <select id="themeSelect" class="form-select form-select-sm">
+          <option value="">Chiaro</option>
+          <option value="dark">Scuro</option>
+          <option value="green">Verde</option>
+          <option value="blue">Blu</option>
+          <option value="red">Rosso</option>
+        </select>
       </div>
     </div>
 
@@ -45,7 +55,7 @@
           <div id="die" class="die app-card mb-3">
             <div class="face-text" id="dieText">Nessuna faccia</div>
           </div>
-          <button id="rollBtn" class="btn btn-success btn-lg">🎲 Estrai</button>
+          <button id="rollBtn" class="btn btn-custom btn-lg">🎲 Estrai</button>
           <div class="mt-3 small">Totale estrazioni: <span id="totalDraws">0</span> — Ultima: <span id="lastDraw">—</span></div>
         </div>
         <div class="mt-3 p-3 app-card">
@@ -58,7 +68,7 @@
         <div class="p-3 app-card">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5>Facce</h5>
-            <button class="btn btn-primary btn-sm" id="addFaceBtn">+ Aggiungi faccia</button>
+            <button class="btn btn-custom btn-sm" id="addFaceBtn">+ Aggiungi faccia</button>
           </div>
           <div id="facesGrid" class="row g-3"></div>
         </div>
@@ -91,7 +101,7 @@
                 <option value="#ffd54f">Giallo</option>
                 <option value="#90caf9">Azzurro</option>
                 <option value="#f48fb1">Rosa</option>
-                <option value="#a5d6a7">Verde</option>
+                <option value="#62bd5b">Verde</option>
                 <option value="#ce93d8">Viola</option>
                 <option value="#ffab91">Arancio</option>
               </select>
@@ -111,7 +121,7 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <script>
-    const LS_FACES='dado_faces_v2'; const LS_STATS='dado_stats_v2'; const LS_SETTINGS='dado_settings_v2'; const LS_QUESTION='dado_question_v2';
+    const LS_FACES='dado_faces_v3'; const LS_STATS='dado_stats_v3'; const LS_SETTINGS='dado_settings_v3'; const LS_QUESTION='dado_question_v3';
 
     const facesGrid=document.getElementById('facesGrid');
     const dieText=document.getElementById('dieText');
@@ -120,12 +130,12 @@
     const saveFaceBtn=document.getElementById('saveFaceBtn');
     const faceModal=new bootstrap.Modal(document.getElementById('faceModal'));
     const questionInput=document.getElementById('questionInput');
-    const themeSwitch=document.getElementById('themeSwitch');
+    const themeSelect=document.getElementById('themeSelect');
     const totalDrawsEl=document.getElementById('totalDraws');
     const lastDrawEl=document.getElementById('lastDraw');
     const statsChartCtx=document.getElementById('statsChart').getContext('2d');
 
-    let faces=[]; let stats={ total:0, counts:{} }; let settings={ dark:false }; let statsChart;
+    let faces=[]; let stats={ total:0, counts:{} }; let settings={ theme:'' }; let statsChart;
 
     function load(){
       const f=localStorage.getItem(LS_FACES); if(f) faces=JSON.parse(f);
@@ -178,13 +188,13 @@
 
     questionInput.addEventListener('input',saveQuestion);
 
-    function applyTheme(){ if(settings.dark) document.body.classList.add('dark'); else document.body.classList.remove('dark'); themeSwitch.checked=settings.dark; }
-    themeSwitch.addEventListener('change',()=>{ settings.dark=themeSwitch.checked; applyTheme(); saveSettings(); });
+    function applyTheme(){ document.body.className=''; if(settings.theme) document.body.classList.add(settings.theme); document.querySelectorAll('.btn-custom').forEach(btn=>btn.style.background=getComputedStyle(document.body).getPropertyValue('--btn-bg')); }
+    themeSelect.addEventListener('change',()=>{ settings.theme=themeSelect.value; applyTheme(); saveSettings(); });
 
     function updateStatsUI(){ totalDrawsEl.innerText=stats.total||0; lastDrawEl.innerText=stats.last||'—'; }
 
-    function initChart(){ statsChart=new Chart(statsChartCtx,{ type:'bar', data:{ labels:[], datasets:[{ label:'Estrazioni', data:[] }] }, options:{ responsive:true, plugins:{ legend:{ display:false } } } }); updateChart(); }
-    function updateChart(){ if(!statsChart) return; statsChart.data.labels=faces.map(f=>f.name); statsChart.data.datasets[0].data=faces.map(f=>stats.counts[f.name]||0); statsChart.update(); }
+    function initChart(){ statsChart=new Chart(statsChartCtx,{ type:'bar', data:{ labels:[], datasets:[{ label:'Estrazioni', data:[], backgroundColor:[], borderColor:[], borderWidth:1 }] }, options:{ responsive:true, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true } } } }); updateChart(); }
+    function updateChart(){ if(!statsChart) return; statsChart.data.labels=faces.map(f=>f.name); statsChart.data.datasets[0].data=faces.map(f=>stats.counts[f.name]||0); statsChart.data.datasets[0].backgroundColor=faces.map(f=>f.color); statsChart.data.datasets[0].borderColor=faces.map(()=> '#000'); statsChart.update(); }
 
     function getContrastColor(hex){ if(!hex) return '#000'; const c=hex.substring(1); const r=parseInt(c.substr(0,2),16); const g=parseInt(c.substr(2,2),16); const b=parseInt(c.substr(4,2),16); const yiq=((r*299)+(g*587)+(b*114))/1000; return (yiq>=128)?'#111':'#fff'; }
 
