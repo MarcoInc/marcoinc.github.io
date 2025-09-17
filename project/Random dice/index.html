@@ -3,38 +3,38 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Dado Personalizzato — A chi tocca?</title>
+  <title>Dado Personalizzato</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#f8f9fa; --card:#fff; --text:#212529; --muted:#6c757d; --accent:#0d6efd;
+      --bg:#f8f9fa; --card:#fff; --text:#212529; --muted:#6c757d;
     }
-    .dark{ --bg:#0b1020; --card:#0f1724; --text:#e6eef8; --muted:#9aa7bf; --accent:#66a1ff; }
-    body{ font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial; background:var(--bg); color:var(--text); }
-    .app-card{ background:var(--card); box-shadow:0 8px 30px rgba(2,6,23,0.08); border-radius:12px; }
+    .dark{ --bg:#0b1020; --card:#0f1724; --text:#e6eef8; --muted:#9aa7bf; }
+    body{ font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial; background:var(--bg); color:var(--text); transition:background .3s,color .3s; }
+    .app-card{ background:var(--card); box-shadow:0 4px 16px rgba(0,0,0,0.1); border-radius:12px; color:var(--text); }
     .die{ width:220px; height:220px; display:flex; align-items:center; justify-content:center; border-radius:18px; font-weight:700; font-size:22px; text-align:center; padding:18px; }
-    .die .face-text{ font-size:28px; font-weight:800; }
+    .die .face-text{ font-size:26px; font-weight:800; }
     .rolling{ animation:roll 900ms ease-in-out; }
     @keyframes roll{ 0%{ transform:rotate(0) scale(1);} 50%{ transform:rotate(180deg) scale(1.08);} 100%{ transform:rotate(360deg) scale(1);} }
     .no-faces{ opacity:0.7; }
     .confetti-canvas{ position:fixed; left:0; top:0; width:100%; height:100%; pointer-events:none; z-index:1050; }
+    .face-box{ position:relative; padding:10px; border-radius:10px; font-weight:600; text-align:center; cursor:pointer; }
+    .face-box .remove-btn{ position:absolute; top:4px; right:6px; background:rgba(0,0,0,0.6); color:#fff; border:none; border-radius:50%; width:20px; height:20px; font-size:12px; line-height:18px; cursor:pointer; }
   </style>
 </head>
 <body>
   <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
-  <div class="container py-5">
+  <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1 class="h3 mb-0">Dado personalizzato</h1>
-      <div class="d-flex align-items-center gap-3">
-        <div class="form-check form-switch ms-2">
-          <input class="form-check-input" type="checkbox" id="themeSwitch"> <label for="themeSwitch">Tema scuro</label>
-        </div>
-        <button class="btn btn-primary" id="addFaceBtn">+ Aggiungi faccia</button>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="themeSwitch">
+        <label class="form-check-label" for="themeSwitch">Tema scuro</label>
       </div>
     </div>
 
-    <div class="mb-4">
+    <div class="mb-3">
       <label class="form-label">Domanda personalizzata</label>
       <input type="text" id="questionInput" class="form-control" placeholder="A chi tocca?">
     </div>
@@ -46,20 +46,27 @@
             <div class="face-text" id="dieText">Nessuna faccia</div>
           </div>
           <button id="rollBtn" class="btn btn-success btn-lg">🎲 Estrai</button>
-          <div class="mt-3 small-note">Totale estrazioni: <span id="totalDraws">0</span> — Ultima estrazione: <span id="lastDraw">—</span></div>
+          <div class="mt-3 small">Totale estrazioni: <span id="totalDraws">0</span> — Ultima: <span id="lastDraw">—</span></div>
+        </div>
+        <div class="mt-3 p-3 app-card">
+          <h5>Statistiche</h5>
+          <canvas id="statsChart" style="max-height:260px;"></canvas>
         </div>
       </div>
 
       <div class="col-lg-6">
         <div class="p-3 app-card">
-          <h5>Facce</h5>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>Facce</h5>
+            <button class="btn btn-primary btn-sm" id="addFaceBtn">+ Aggiungi faccia</button>
+          </div>
           <div id="facesGrid" class="row g-3"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Modal: Add/Edit Face -->
+  <!-- Modal -->
   <div class="modal fade" id="faceModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content app-card">
@@ -79,8 +86,15 @@
               <input type="text" id="faceEmoji" class="form-control">
             </div>
             <div class="mb-3">
-              <label class="form-label">Colore sfondo</label>
-              <input type="color" id="faceColor" class="form-control form-control-color" value="#ffd54f">
+              <label class="form-label">Colore preset</label>
+              <select id="faceColor" class="form-select">
+                <option value="#ffd54f">Giallo</option>
+                <option value="#90caf9">Azzurro</option>
+                <option value="#f48fb1">Rosa</option>
+                <option value="#a5d6a7">Verde</option>
+                <option value="#ce93d8">Viola</option>
+                <option value="#ffab91">Arancio</option>
+              </select>
             </div>
           </form>
         </div>
@@ -97,99 +111,82 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <script>
-    const LS_FACES = 'dado_faces_v1';
-    const LS_STATS = 'dado_stats_v1';
-    const LS_SETTINGS = 'dado_settings_v1';
-    const LS_QUESTION = 'dado_question_v1';
+    const LS_FACES='dado_faces_v2'; const LS_STATS='dado_stats_v2'; const LS_SETTINGS='dado_settings_v2'; const LS_QUESTION='dado_question_v2';
 
-    const facesGrid = document.getElementById('facesGrid');
-    const dieText = document.getElementById('dieText');
-    const rollBtn = document.getElementById('rollBtn');
-    const addFaceBtn = document.getElementById('addFaceBtn');
-    const saveFaceBtn = document.getElementById('saveFaceBtn');
-    const faceModal = new bootstrap.Modal(document.getElementById('faceModal'));
-    const questionInput = document.getElementById('questionInput');
+    const facesGrid=document.getElementById('facesGrid');
+    const dieText=document.getElementById('dieText');
+    const rollBtn=document.getElementById('rollBtn');
+    const addFaceBtn=document.getElementById('addFaceBtn');
+    const saveFaceBtn=document.getElementById('saveFaceBtn');
+    const faceModal=new bootstrap.Modal(document.getElementById('faceModal'));
+    const questionInput=document.getElementById('questionInput');
+    const themeSwitch=document.getElementById('themeSwitch');
+    const totalDrawsEl=document.getElementById('totalDraws');
+    const lastDrawEl=document.getElementById('lastDraw');
+    const statsChartCtx=document.getElementById('statsChart').getContext('2d');
 
-    let faces = [];
-    let stats = { total:0, counts:{} };
-    let settings = { dark:false };
+    let faces=[]; let stats={ total:0, counts:{} }; let settings={ dark:false }; let statsChart;
 
     function load(){
-      const f = localStorage.getItem(LS_FACES);
-      const s = localStorage.getItem(LS_STATS);
-      const sett = localStorage.getItem(LS_SETTINGS);
-      const q = localStorage.getItem(LS_QUESTION);
-      if(f) faces = JSON.parse(f);
-      if(s) stats = JSON.parse(s);
-      if(sett) settings = JSON.parse(sett);
-      if(q) questionInput.value = q;
-      renderFaces();
+      const f=localStorage.getItem(LS_FACES); if(f) faces=JSON.parse(f);
+      const s=localStorage.getItem(LS_STATS); if(s) stats=JSON.parse(s);
+      const sett=localStorage.getItem(LS_SETTINGS); if(sett) settings=JSON.parse(sett);
+      const q=localStorage.getItem(LS_QUESTION); if(q) questionInput.value=q;
+      applyTheme(); renderFaces(); updateStatsUI(); initChart();
     }
-
-    function saveFaces(){ localStorage.setItem(LS_FACES, JSON.stringify(faces)); }
-    function saveStats(){ localStorage.setItem(LS_STATS, JSON.stringify(stats)); }
-    function saveSettings(){ localStorage.setItem(LS_SETTINGS, JSON.stringify(settings)); }
-    function saveQuestion(){ localStorage.setItem(LS_QUESTION, questionInput.value); }
+    function saveFaces(){ localStorage.setItem(LS_FACES,JSON.stringify(faces)); }
+    function saveStats(){ localStorage.setItem(LS_STATS,JSON.stringify(stats)); }
+    function saveSettings(){ localStorage.setItem(LS_SETTINGS,JSON.stringify(settings)); }
+    function saveQuestion(){ localStorage.setItem(LS_QUESTION,questionInput.value); }
 
     function renderFaces(){
-      facesGrid.innerHTML = '';
-      if(faces.length===0){
-        facesGrid.innerHTML = '<div class="col-12 text-center p-4 no-faces">Nessuna faccia - aggiungine una.</div>';
-        dieText.innerText = 'Nessuna faccia';
-        return;
-      }
-      faces.forEach((f, idx)=>{
-        const col = document.createElement('div');
-        col.className = 'col-6';
-        col.innerHTML = `<div class="p-2 app-card" style="background:${f.color}">${f.emoji||''} ${f.name}</div>`;
+      facesGrid.innerHTML='';
+      if(faces.length===0){ facesGrid.innerHTML='<div class="col-12 text-center p-4 no-faces">Nessuna faccia</div>'; dieText.innerText='Nessuna faccia'; return; }
+      faces.forEach((f,idx)=>{
+        const col=document.createElement('div'); col.className='col-6 col-md-4';
+        col.innerHTML=`<div class="face-box" style="background:${f.color};color:${getContrastColor(f.color)};">${f.emoji||''} ${f.name}<button class="remove-btn" data-idx="${idx}">×</button></div>`;
         facesGrid.appendChild(col);
+      });
+      document.querySelectorAll('.remove-btn').forEach(btn=>{
+        btn.addEventListener('click',e=>{ const idx=Number(e.target.dataset.idx); faces.splice(idx,1); saveFaces(); renderFaces(); updateChart(); });
       });
     }
 
-    function animateDieWithText(text){
-      const die = document.getElementById('die');
-      die.classList.remove('rolling');
-      void die.offsetWidth;
-      die.classList.add('rolling');
-      dieText.innerText = text;
-      setTimeout(()=> die.classList.remove('rolling'), 900);
-    }
+    function animateDieWithText(text){ const die=document.getElementById('die'); die.classList.remove('rolling'); void die.offsetWidth; die.classList.add('rolling'); dieText.innerText=text; setTimeout(()=>die.classList.remove('rolling'),900); }
 
-    rollBtn.addEventListener('click', ()=>{
+    rollBtn.addEventListener('click',()=>{
       if(faces.length===0) return alert('Aggiungi prima almeno una faccia.');
-      const idx = Math.floor(Math.random()*faces.length);
-      const face = faces[idx];
-      animateDieWithText((questionInput.value||'A chi tocca?') + " → " + (face.emoji||'')+face.name);
-      stats.total = (stats.total||0)+1;
-      stats.counts[face.name] = (stats.counts[face.name]||0)+1;
-      saveStats();
-      confetti({ particleCount: 60, spread: 70, origin: { y: 0.4 } });
+      const idx=Math.floor(Math.random()*faces.length); const face=faces[idx];
+      animateDieWithText((questionInput.value||'A chi tocca?')+" → "+(face.emoji||'')+face.name);
+      stats.total=(stats.total||0)+1; stats.counts[face.name]=(stats.counts[face.name]||0)+1;
+      totalDrawsEl.innerText=stats.total; lastDrawEl.innerText=face.name;
+      saveStats(); updateChart(); confetti({ particleCount:60, spread:70, origin:{ y:0.4 } });
     });
 
-    addFaceBtn.addEventListener('click', ()=>{
-      document.getElementById('faceId').value = '';
-      document.getElementById('faceForm').reset();
-      faceModal.show();
-    });
-
-    saveFaceBtn.addEventListener('click', ()=>{
-      const id = document.getElementById('faceId').value;
-      const name = document.getElementById('faceName').value.trim();
-      const emoji = document.getElementById('faceEmoji').value.trim();
-      const color = document.getElementById('faceColor').value;
+    addFaceBtn.addEventListener('click',()=>{ document.getElementById('faceId').value=''; document.getElementById('faceForm').reset(); faceModal.show(); });
+    saveFaceBtn.addEventListener('click',()=>{
+      const id=document.getElementById('faceId').value;
+      const name=document.getElementById('faceName').value.trim();
+      const emoji=document.getElementById('faceEmoji').value.trim();
+      const color=document.getElementById('faceColor').value;
       if(!name){ alert('Inserisci un nome'); return; }
       if(faces.find(f=>f.name.toLowerCase()===name.toLowerCase() && id==='')){ alert('Questa faccia esiste già'); return; }
-      const obj = { name, emoji, color };
-      if(id===''){
-        faces.push(obj);
-      } else {
-        faces[Number(id)] = obj;
-      }
-      saveFaces(); renderFaces();
-      faceModal.hide();
+      const obj={ name,emoji,color };
+      if(id===''){ faces.push(obj); } else { faces[Number(id)]=obj; }
+      saveFaces(); renderFaces(); updateChart(); faceModal.hide();
     });
 
-    questionInput.addEventListener('input', saveQuestion);
+    questionInput.addEventListener('input',saveQuestion);
+
+    function applyTheme(){ if(settings.dark) document.body.classList.add('dark'); else document.body.classList.remove('dark'); themeSwitch.checked=settings.dark; }
+    themeSwitch.addEventListener('change',()=>{ settings.dark=themeSwitch.checked; applyTheme(); saveSettings(); });
+
+    function updateStatsUI(){ totalDrawsEl.innerText=stats.total||0; lastDrawEl.innerText=stats.last||'—'; }
+
+    function initChart(){ statsChart=new Chart(statsChartCtx,{ type:'bar', data:{ labels:[], datasets:[{ label:'Estrazioni', data:[] }] }, options:{ responsive:true, plugins:{ legend:{ display:false } } } }); updateChart(); }
+    function updateChart(){ if(!statsChart) return; statsChart.data.labels=faces.map(f=>f.name); statsChart.data.datasets[0].data=faces.map(f=>stats.counts[f.name]||0); statsChart.update(); }
+
+    function getContrastColor(hex){ if(!hex) return '#000'; const c=hex.substring(1); const r=parseInt(c.substr(0,2),16); const g=parseInt(c.substr(2,2),16); const b=parseInt(c.substr(4,2),16); const yiq=((r*299)+(g*587)+(b*114))/1000; return (yiq>=128)?'#111':'#fff'; }
 
     load();
   </script>
